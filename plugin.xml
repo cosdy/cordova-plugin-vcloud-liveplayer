@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="xwang.cordova.vcloud.liveplayer" version="0.0.1">
+	<name>VCloud Live Player</name>
+	<description>A cordova plugin, a JS version of VCloud Live Player SDK</description>
+	<license>MIT</license>
+	<keywords>cordova,vcloud,live player,video</keywords>
+	<repo>https://github.com/hkizuna/cordova-plugin-vcloud-liveplayer.git</repo>
+	<issue>https://github.com/hkizuna/cordova-plugin-vcloud-liveplayer/issues</issue>
+	<!-- required cordova version -->
+	<engines>
+		<engine name="cordova" version=">=3.9.2" />
+	</engines>
+	<!-- js module -->
+	<js-module src="www/liveplayer.js" name="LivePlayer">
+		<clobbers target="LivePlayer" />
+	</js-module>
+	<!-- ios -->
+	<platform name="ios">
+		<config-file target="config.xml" parent="/*">
+			<feature name="LivePlayer">
+				<param name="ios-package" value="CDVLivePlayer" />
+				<param name="onload" value="true" />
+			</feature>
+		</config-file>
+
+		<!-- plugin source code -->
+    <header-file src="src/ios/CDVLivePlayer.h" />
+    <source-file src="src/ios/CDVLivePlayer.m" />
+		<header-file src="src/ios/LivePlayerViewController.h" />
+		<source-file src="src/ios/LivePlayerViewController.m" />
+
+    <!-- resources -->
+    <resource-file src="src/ios/res/CDVLivePlayer.bundle" />
+
+    <!-- Live Player -->
+    <header-file src="src/ios/libs/NELivePlayer.h" />
+    <header-file src="src/ios/libs/NELivePlayerController.h" />
+    <source-file src="src/ios/libs/libNELivePlayer.a" framework="true" />
+    <source-file src="src/ios/libs/libavcodec.a" framework="true" />
+    <source-file src="src/ios/libs/libavformat.a" framework="true" />
+    <source-file src="src/ios/libs/libavresample.a" framework="true" />
+    <source-file src="src/ios/libs/libavutil.a" framework="true" />
+    <source-file src="src/ios/libs/libcrypto.a" framework="true" />
+    <source-file src="src/ios/libs/libfdk-aac.a" framework="true" />
+    <source-file src="src/ios/libs/libopenh264.a" framework="true" />
+    <source-file src="src/ios/libs/librtmp.a" framework="true" />
+    <source-file src="src/ios/libs/libssl.a" framework="true" />
+    <source-file src="src/ios/libs/libswresample.a" framework="true" />
+    <source-file src="src/ios/libs/libswscale.a" framework="true" />
+
+    <!-- other required frameworks -->
+    <framework src="libbz2.tbd" />
+    <framework src="libiconv.tbd" />
+    <framework src="libstdc++.tbd" />
+    <framework src="libz.tbd" />
+    <framework src="AudioToolBox.framework" />
+    <framework src="AVFoundation.framework" />
+    <framework src="CFNetwork.framework" />
+    <framework src="CoreAudio.framework" />
+    <framework src="CoreGraphics.framework" />
+    <framework src="CoreMedia.framework" />
+    <framework src="CoreTelephony.framework" />
+    <framework src="CoreVideo.framework" />
+    <framework src="Foundation.framework" />
+    <framework src="OpenGLES.framework" />
+    <framework src="QuartzCore.framework" />
+    <framework src="SystemConfiguration.framework" />
+    <framework src="UIKit.framework" />
+    <framework src="VideoToolBox.framework" />
+	</platform>
+</plugin>
