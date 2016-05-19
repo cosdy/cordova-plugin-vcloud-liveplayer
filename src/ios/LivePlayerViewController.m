@@ -9,6 +9,19 @@
 
 #define UIColorFromRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 
+@interface AppleIsBitchVolumeView : MPVolumeView
+
+@end
+
+@implementation AppleIsBitchVolumeView
+
+- (CGRect)volumeSliderRectForBounds:(CGRect)bounds
+{
+  return bounds;
+}
+
+@end
+
 @interface LivePlayerViewController()
 
 @property (nonatomic, strong) UIView *playerView;
@@ -20,7 +33,7 @@
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UIButton *muteButton;
 @property (nonatomic, strong) UIButton *snapshotButton;
-@property (nonatomic, strong) MPVolumeView *volumeSlider;
+@property (nonatomic, strong) AppleIsBitchVolumeView *volumeSlider;
 @property (nonatomic, strong) UIActivityIndicatorView *bufferingIndicate;
 @property (nonatomic, strong) UILabel *bufferingReminder;
 
@@ -65,13 +78,13 @@ BOOL isMute = NO;
     self.backButton.frame = CGRectMake(0, 20, 44, 44);
     self.muteButton.frame = CGRectMake(0, 0, 44, 44);
     self.snapshotButton.frame = CGRectMake(screenWidth - 44, 0, 44, 44);
-    self.volumeSlider.frame = CGRectMake(44, 11, 175, 22);
+    self.volumeSlider.frame = CGRectMake(44, 11, 175, 44);
   }
   else {
     self.backButton.frame = CGRectMake(margin, 20, 44, 44);
     self.muteButton.frame = CGRectMake(margin, 0, 44, 44);
     self.snapshotButton.frame = CGRectMake(screenWidth - 44 - margin, 0, 44, 44);
-    self.volumeSlider.frame = CGRectMake(44 + margin, 11, 300, 22);
+    self.volumeSlider.frame = CGRectMake(44 + margin, 11, 300, 44);
   }
   self.titleLabel.frame = CGRectMake(0, 20, screenWidth, 44);
 
@@ -135,7 +148,7 @@ BOOL isMute = NO;
   [self.bottomControlView addSubview:self.snapshotButton];
 
   // volume slider
-  self.volumeSlider = [[MPVolumeView alloc] initWithFrame:CGRectMake(44 + margin, 11, 300, 22)];
+  self.volumeSlider = [[AppleIsBitchVolumeView alloc] initWithFrame:CGRectMake(44 + margin, 0, 300, 44)];
   [self.bottomControlView addSubview:self.volumeSlider];
 
   [self.controlOverlay addSubview:self.topControlView];
