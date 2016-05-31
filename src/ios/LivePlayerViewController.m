@@ -6,6 +6,7 @@
 //
 
 #import "LivePlayerViewController.h"
+#import <Photos/Photos.h>
 
 #define UIColorFromRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 
@@ -49,13 +50,13 @@ float volumeLevel = 0.0f;
 BOOL isStatusBarHide = NO;
 BOOL isMute = NO;
 
-- (instancetype)initWithURL:(NSURL *)url title:(NSString *)title andOptions:(NSDictionary *)options
+- (instancetype)initWithURL:(NSURL *)url title:(NSString *)title andOnSchedule:(BOOL)onSchedule
 {
   self = [self initWithNibName:nil bundle:nil];
   if (self) {
     self.url = url;
     self.streamingTitle = title;
-    self.options = options;
+    self.onSchedule = onSchedule;
   }
   return self;
 }
@@ -251,7 +252,7 @@ BOOL isMute = NO;
   NSLog(@"onClickBack called.");
   if (self.presentingViewController)
   {
-    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
   }
 }
 
@@ -274,7 +275,27 @@ BOOL isMute = NO;
   NSLog(@"onClickSnapshot called.");
   UIImage *snapImage = [self.player getSnapshot];
   UIImageWriteToSavedPhotosAlbum(snapImage, nil, nil, nil);
-  UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提示" message:@"截图已保存到相册" preferredStyle:UIAlertControllerStyleAlert];
+
+  PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+  BOOL authorized = NO;
+  switch (status) {
+    case PHAuthorizationStatusDenied:
+    case PHAuthorizationStatusRestricted:
+    case PHAuthorizationStatusNotDetermined:
+      authorized = NO;
+      break;
+    case PHAuthorizationStatusAuthorized:
+      authorized = YES;
+      break;
+  }
+
+  UIAlertController *alertController = NULL;
+  if (authorized) {
+    alertController = [UIAlertController alertControllerWithTitle:@"截图已保存到相册" message:nil preferredStyle:UIAlertControllerStyleAlert];
+  }
+  else {
+    alertController = [UIAlertController alertControllerWithTitle:@"无法访问相册" message:@"请在设置中允许悠课访问你的相册" preferredStyle:UIAlertControllerStyleAlert];
+  }
   UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){}];
   [alertController addAction:action];
   [self presentViewController:alertController animated:YES completion:nil];
@@ -308,17 +329,22 @@ BOOL isMute = NO;
 {
   NSLog(@"playBackFinished called.");
   UIAlertController *alertController = NULL;
-  UIAlertAction *action = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+  UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
     if (self.presentingViewController) {
-      [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+      [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
     }
   }];
   switch ([[[notification userInfo] valueForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey] intValue]) {
     case NELPMovieFinishReasonPlaybackEnded:
-      alertController = [UIAlertController alertControllerWithTitle:@"提示" message:@"直播结束" preferredStyle:UIAlertControllerStyleAlert];
+      alertController = [UIAlertController alertControllerWithTitle:@"直播已结束" message:nil preferredStyle:UIAlertControllerStyleAlert];
       break;
     case NELPMovieFinishReasonPlaybackError:
-      alertController = [UIAlertController alertControllerWithTitle:@"注意" message:@"播放失败" preferredStyle:UIAlertControllerStyleAlert];
+      if (self.onSchedule) {
+        alertController = [UIAlertController alertControllerWithTitle:@"导师未开启直播" message:nil preferredStyle:UIAlertControllerStyleAlert];
+      }
+      else {
+        alertController = [UIAlertController alertControllerWithTitle:@"直播已结束" message:nil preferredStyle:UIAlertControllerStyleAlert];
+      }
       break;
     case NELPMovieFinishReasonUserExited:
       break;

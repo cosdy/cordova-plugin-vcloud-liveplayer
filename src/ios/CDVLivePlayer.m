@@ -20,15 +20,15 @@
 
   NSURL *url = [[NSURL alloc] initWithString:[arguments objectAtIndex:0]];
   NSString *title = [arguments objectAtIndex:1];
-  NSDictionary *options = [arguments objectAtIndex:2];
+  BOOL onSchedule = [arguments objectAtIndex:2];
 
-  LivePlayerViewController *playerViewController = [[LivePlayerViewController alloc] initWithURL:url title:title andOptions:options];
+  LivePlayerViewController *playerViewController = [[LivePlayerViewController alloc] initWithURL:url title:title andOnSchedule:onSchedule];
   if (playerViewController == nil) {
     [self failWithCallbackId:command.callbackId withMessage:@"初始化错误"];
     return;
   }
 
-  [self.viewController presentViewController:playerViewController animated:YES completion:nil];
+  [self.viewController presentViewController:playerViewController animated:NO completion:nil];
   [self successWithCallbackId:command.callbackId withMessage:@"大丈夫"];
 }
 
