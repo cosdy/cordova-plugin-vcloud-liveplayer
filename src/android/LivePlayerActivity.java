@@ -24,6 +24,7 @@ import com.xinfu.uuke.local.R;
 public class LivePlayerActivity extends Activity {
   private String mUrl;
   private String mTitle;
+  private boolean mOnSchedule;
 
   private LivePlayerView mStreamingView;
   private FrameLayout mControlOverlay;
@@ -52,6 +53,7 @@ public class LivePlayerActivity extends Activity {
 
     mUrl = getIntent().getStringExtra("url");
     mTitle = getIntent().getStringExtra("title");
+    mOnSchedule = getIntent().getBooleanExtra("onSchedule", false);
 
     mStreamingView = (LivePlayerView) findViewById(R.id.streamingView);
     mStreamingView.setVideoPath(mUrl);
@@ -135,8 +137,8 @@ public class LivePlayerActivity extends Activity {
     public void onCompletion(NELivePlayer neLivePlayer) {
       new AlertDialog.Builder(mContext)
         .setTitle("")
-        .setMessage("直播结束")
-        .setPositiveButton("OK",
+        .setMessage("直播已结束")
+        .setPositiveButton("确定",
           new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
               onDestroy();
@@ -151,18 +153,23 @@ public class LivePlayerActivity extends Activity {
   NELivePlayer.OnErrorListener mOnErrorListener = new NELivePlayer.OnErrorListener() {
     @Override
     public boolean onError(final NELivePlayer neLivePlayer, int i, int i1) {
-      new AlertDialog.Builder(mContext)
-        .setTitle("")
-        .setMessage("直播尚未开始")
-        .setPositiveButton("Ok",
-          new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-              onDestroy();
-              finish();
-            }
-          })
-        .setCancelable(false)
-        .show();
+      AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+      builder.setTitle("");
+      if (!mOnSchedule) {
+        builder.setMessage("直播已结束");
+      }
+      else {
+        builder.setMessage("导师未开启直播");
+      }
+      builder.setPositiveButton("确定",
+        new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int whichButton) {
+            onDestroy();
+            finish();
+          }
+        });
+      builder.setCancelable(false);
+      builder.show();
       return false;
     }
   };

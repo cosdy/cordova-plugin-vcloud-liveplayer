@@ -3,8 +3,12 @@ package xwang.cordova.vcloud.liveplayer;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -13,7 +17,11 @@ import android.widget.Toast;
 
 import com.netease.neliveplayer.NELivePlayer;
 import com.netease.neliveplayer.NEMediaPlayer;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 
 public class LivePlayerView extends SurfaceView {
   private static Context mContext;
@@ -229,8 +237,70 @@ public class LivePlayerView extends SurfaceView {
     if (mMediaPlayer != null && mIsPrepared) {
       Bitmap bitmap = Bitmap.createBitmap(mVideoWidth, mVideoHeight, Bitmap.Config.ARGB_8888);
       mMediaPlayer.getSnapshot(bitmap);
-      MediaStore.Images.Media.insertImage(mContext.getContentResolver(), bitmap, "snapshot.jpg", null);
-      Toast.makeText(mContext, "截图成功", Toast.LENGTH_SHORT).show();
+      File imageFile = savePhoto(bitmap);
+      // Update image gallery
+      if (imageFile != null) {
+        scanPhoto(imageFile);
+        Toast.makeText(mContext, "截图成功", Toast.LENGTH_SHORT).show();
+      }
+      else {
+        Toast.makeText(mContext, "截图失败", Toast.LENGTH_SHORT).show();
+      }
     }
+  }
+
+  private File savePhoto(Bitmap bmp) {
+    File retVal = null;
+
+    try {
+      Calendar c = Calendar.getInstance();
+      String date = "" + c.get(Calendar.DAY_OF_MONTH)
+        + c.get(Calendar.MONTH)
+        + c.get(Calendar.YEAR)
+        + c.get(Calendar.HOUR_OF_DAY)
+        + c.get(Calendar.MINUTE)
+        + c.get(Calendar.SECOND);
+
+      String deviceVersion = Build.VERSION.RELEASE;
+      int check = deviceVersion.compareTo("2.3.3");
+
+      File folder;
+      /*
+       * File path = Environment.getExternalStoragePublicDirectory(
+       * Environment.DIRECTORY_PICTURES ); //this throws error in Android
+       * 2.2
+       */
+      if (check >= 1) {
+        folder = Environment
+          .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+
+        if(!folder.exists()) {
+          folder.mkdirs();
+        }
+      } else {
+        folder = Environment.getExternalStorageDirectory();
+      }
+
+      File imageFile = new File(folder, "c2i_" + date.toString() + ".png");
+
+      FileOutputStream out = new FileOutputStream(imageFile);
+      bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
+      out.flush();
+      out.close();
+
+      retVal = imageFile;
+    } catch (Exception e) {
+    }
+    return retVal;
+  }
+
+  /* Invoke the system's media scanner to add your photo to the Media Provider's database,
+   * making it available in the Android Gallery application and to other apps. */
+  private void scanPhoto(File imageFile)
+  {
+    Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+    Uri contentUri = Uri.fromFile(imageFile);
+    mediaScanIntent.setData(contentUri);
+    mContext.sendBroadcast(mediaScanIntent);
   }
 }

@@ -28,9 +28,18 @@ public class LivePlayer extends CordovaPlugin {
       return true;
     }
 
+    final boolean onSchedule;
+    try {
+      onSchedule = args.getBoolean(2);
+    } catch (JSONException e) {
+      callbackContext.error(ERROR_INVALID_PARAMETERS);
+      return true;
+    }
+
     Intent intent = new Intent(this.cordova.getActivity().getApplicationContext(), LivePlayerActivity.class)
     .putExtra("url", url)
-    .putExtra("title", title);
+    .putExtra("title", title)
+    .putExtra("onSchedule", onSchedule);
     this.cordova.getActivity().startActivity(intent);
 
     sendNoResultPluginResult(callbackContext);
