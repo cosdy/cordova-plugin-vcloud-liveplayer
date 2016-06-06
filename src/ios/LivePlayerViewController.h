@@ -13,7 +13,7 @@
 
 @property(nonatomic, strong) NSURL *url;
 @property(nonatomic, strong) NSString *streamingTitle;
-@property(nonatomic, strong) BOOL onSchedule;
+@property(nonatomic) BOOL onSchedule;
 @property(nonatomic, strong) id<NELivePlayer> player;
 
 - (id)initWithURL:(NSURL *)url title:(NSString *)title andOnSchedule:(BOOL)onSchedule;
