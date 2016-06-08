@@ -20,7 +20,7 @@
 
   NSURL *url = [[NSURL alloc] initWithString:[arguments objectAtIndex:0]];
   NSString *title = [arguments objectAtIndex:1];
-  BOOL onSchedule = [arguments objectAtIndex:2];
+  BOOL onSchedule = [[arguments objectAtIndex:2] boolValue];
 
   LivePlayerViewController *playerViewController = [[LivePlayerViewController alloc] initWithURL:url title:title andOnSchedule:onSchedule];
   if (playerViewController == nil) {
