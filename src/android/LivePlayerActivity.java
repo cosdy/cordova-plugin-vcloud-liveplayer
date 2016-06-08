@@ -170,7 +170,7 @@ public class LivePlayerActivity extends Activity {
         });
       builder.setCancelable(false);
       builder.show();
-      return false;
+      return true;
     }
   };
 
