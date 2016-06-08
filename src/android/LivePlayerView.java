@@ -281,10 +281,10 @@ public class LivePlayerView extends SurfaceView {
         folder = Environment.getExternalStorageDirectory();
       }
 
-      File imageFile = new File(folder, "c2i_" + date.toString() + ".png");
+      File imageFile = new File(folder, "snapshot_" + date.toString() + ".jpg");
 
       FileOutputStream out = new FileOutputStream(imageFile);
-      bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
+      bmp.compress(Bitmap.CompressFormat.JPEG, 100, out);
       out.flush();
       out.close();
 
