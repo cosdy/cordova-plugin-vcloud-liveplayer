@@ -24,7 +24,6 @@ import com.xinfu.uuke.local.R;
 public class LivePlayerActivity extends Activity {
   private String mUrl;
   private String mTitle;
-  private boolean mOnSchedule;
 
   private LivePlayerView mStreamingView;
   private FrameLayout mControlOverlay;
@@ -53,7 +52,6 @@ public class LivePlayerActivity extends Activity {
 
     mUrl = getIntent().getStringExtra("url");
     mTitle = getIntent().getStringExtra("title");
-    mOnSchedule = getIntent().getBooleanExtra("onSchedule", false);
 
     mStreamingView = (LivePlayerView) findViewById(R.id.streamingView);
     mStreamingView.setVideoPath(mUrl);
@@ -155,12 +153,7 @@ public class LivePlayerActivity extends Activity {
     public boolean onError(final NELivePlayer neLivePlayer, int i, int i1) {
       AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
       builder.setTitle("");
-      if (!mOnSchedule) {
-        builder.setMessage("直播已结束");
-      }
-      else {
-        builder.setMessage("导师未开启直播");
-      }
+      builder.setMessage("直播已结束");
       builder.setPositiveButton("确定",
         new DialogInterface.OnClickListener() {
           public void onClick(DialogInterface dialog, int whichButton) {

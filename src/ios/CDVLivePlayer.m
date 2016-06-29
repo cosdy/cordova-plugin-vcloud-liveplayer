@@ -13,16 +13,15 @@
 - (void)play:(CDVInvokedUrlCommand *)command
 {
   NSArray *arguments = [command arguments];
-  if ([arguments count] != 3) {
+  if ([arguments count] != 2) {
     [self failWithCallbackId:command.callbackId withMessage:@"参数错误"];
     return;
   }
 
   NSURL *url = [[NSURL alloc] initWithString:[arguments objectAtIndex:0]];
   NSString *title = [arguments objectAtIndex:1];
-  BOOL onSchedule = [[arguments objectAtIndex:2] boolValue];
 
-  LivePlayerViewController *playerViewController = [[LivePlayerViewController alloc] initWithURL:url title:title andOnSchedule:onSchedule];
+  LivePlayerViewController *playerViewController = [[LivePlayerViewController alloc] initWithURL:url title:title];
   if (playerViewController == nil) {
     [self failWithCallbackId:command.callbackId withMessage:@"初始化错误"];
     return;

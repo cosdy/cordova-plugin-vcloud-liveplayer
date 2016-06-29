@@ -50,13 +50,12 @@ float volumeLevel = 0.0f;
 BOOL isStatusBarHide = NO;
 BOOL isMute = NO;
 
-- (instancetype)initWithURL:(NSURL *)url title:(NSString *)title andOnSchedule:(BOOL)onSchedule
+- (instancetype)initWithURL:(NSURL *)url title:(NSString *)title
 {
   self = [self initWithNibName:nil bundle:nil];
   if (self) {
     self.url = url;
     self.streamingTitle = title;
-    self.onSchedule = onSchedule;
   }
   return self;
 }
@@ -339,12 +338,7 @@ BOOL isMute = NO;
       alertController = [UIAlertController alertControllerWithTitle:@"直播已结束" message:nil preferredStyle:UIAlertControllerStyleAlert];
       break;
     case NELPMovieFinishReasonPlaybackError:
-      if (self.onSchedule) {
-        alertController = [UIAlertController alertControllerWithTitle:@"导师未开启直播" message:nil preferredStyle:UIAlertControllerStyleAlert];
-      }
-      else {
-        alertController = [UIAlertController alertControllerWithTitle:@"直播已结束" message:nil preferredStyle:UIAlertControllerStyleAlert];
-      }
+      alertController = [UIAlertController alertControllerWithTitle:@"直播已结束" message:nil preferredStyle:UIAlertControllerStyleAlert];
       break;
     case NELPMovieFinishReasonUserExited:
       break;
