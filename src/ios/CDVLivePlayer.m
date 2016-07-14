@@ -10,6 +10,8 @@
 
 @implementation CDVLivePlayer:CDVPlugin
 
+LivePlayerViewController *playerViewController;
+
 - (void)play:(CDVInvokedUrlCommand *)command
 {
   NSArray *arguments = [command arguments];
@@ -21,20 +23,40 @@
   NSURL *url = [[NSURL alloc] initWithString:[arguments objectAtIndex:0]];
   NSString *title = [arguments objectAtIndex:1];
 
-  LivePlayerViewController *playerViewController = [[LivePlayerViewController alloc] initWithURL:url title:title];
+  playerViewController = [[LivePlayerViewController alloc] initWithURL:url title:title];
   if (playerViewController == nil) {
     [self failWithCallbackId:command.callbackId withMessage:@"初始化错误"];
     return;
   }
 
   [self.viewController presentViewController:playerViewController animated:NO completion:nil];
-  [self successWithCallbackId:command.callbackId withMessage:@"大丈夫"];
+  [self successWithCallbackId:command.callbackId withMessage:@"大丈夫" andKeep:NO];
+}
+
+- (void)channel:(CDVInvokedUrlCommand *)command
+{
+  NSArray *arguments = [command arguments];
+  if ([arguments count] != 2) {
+    [self failWithCallbackId:command.callbackId withMessage:@"参数错误"];
+    return;
+  }
+
+  NSString *nickname = [arguments objectAtIndex:0];
+  NSString *content = [arguments objectAtIndex:1];
+  [playerViewController addChannelName:nickname andMessage:content];
+  [self successWithCallbackId:command.callbackId withMessage:@"大丈夫" andKeep:NO];
+}
+
+- (void)message:(CDVInvokedUrlCommand *)command
+{
+  [playerViewController setCommandDelegate:self andMessageCallbackId:command.callbackId];
 }
 
 #pragma mark Helper Function
-- (void)successWithCallbackId:(NSString *)callbackId withMessage:(NSString *)message
+- (void)successWithCallbackId:(NSString *)callbackId withMessage:(NSString *)message andKeep:(BOOL)keep
 {
   CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:message];
+  [pluginResult setKeepCallbackAsBool:keep];
   [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }
 

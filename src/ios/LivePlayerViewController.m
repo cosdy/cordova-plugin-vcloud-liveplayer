@@ -7,21 +7,9 @@
 
 #import "LivePlayerViewController.h"
 #import <Photos/Photos.h>
+#import <Cordova/CDV.h>
 
 #define UIColorFromRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
-
-@interface AppleIsBitchVolumeView : MPVolumeView
-
-@end
-
-@implementation AppleIsBitchVolumeView
-
-- (CGRect)volumeSliderRectForBounds:(CGRect)bounds
-{
-  return bounds;
-}
-
-@end
 
 @interface LivePlayerViewController()
 
@@ -32,9 +20,11 @@
 @property (nonatomic, strong) UIView *bottomControlView;
 @property (nonatomic, strong) UIButton *backButton;
 @property (nonatomic, strong) UILabel *titleLabel;
-@property (nonatomic, strong) UIButton *muteButton;
 @property (nonatomic, strong) UIButton *snapshotButton;
-@property (nonatomic, strong) AppleIsBitchVolumeView *volumeSlider;
+@property (nonatomic, strong) UIButton *listButton;
+@property (nonatomic, strong) UITextField *inputTextField;
+@property (nonatomic, strong) UIButton *sendButton;
+@property (nonatomic, strong) UITextView *channelTextView;
 @property (nonatomic, strong) UIActivityIndicatorView *bufferingIndicate;
 @property (nonatomic, strong) UILabel *bufferingReminder;
 
@@ -49,6 +39,10 @@ float volumeLevel = 0.0f;
 
 BOOL isStatusBarHide = NO;
 BOOL isMute = NO;
+BOOL isChannelHide = NO;
+
+NSString *messageCallbackId;
+CDVLivePlayer *cdvLivePLayer;
 
 - (instancetype)initWithURL:(NSURL *)url title:(NSString *)title
 {
@@ -76,20 +70,37 @@ BOOL isMute = NO;
   self.bottomControlView.frame = CGRectMake(0, screenHeight - 44, screenWidth, 44);
   if (toInterfaceOrientation == UIInterfaceOrientationPortrait) {
     self.backButton.frame = CGRectMake(0, 20, 44, 44);
-    self.muteButton.frame = CGRectMake(0, 0, 44, 44);
     self.snapshotButton.frame = CGRectMake(screenWidth - 44, 0, 44, 44);
-    self.volumeSlider.frame = CGRectMake(44, 11, 175, 44);
   }
   else {
     self.backButton.frame = CGRectMake(margin, 20, 44, 44);
-    self.muteButton.frame = CGRectMake(margin, 0, 44, 44);
     self.snapshotButton.frame = CGRectMake(screenWidth - 44 - margin, 0, 44, 44);
-    self.volumeSlider.frame = CGRectMake(44 + margin, 11, 300, 44);
   }
   self.titleLabel.frame = CGRectMake(0, 20, screenWidth, 44);
 
   self.playerView.frame = CGRectMake(0, 0, screenWidth, screenHeight);
   self.player.view.frame = self.playerView.bounds;
+}
+
+- (void)addChannelName:(NSString *)name andMessage:(NSString *)message
+{
+  NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithAttributedString:self.channelTextView.attributedText];
+  NSMutableAttributedString *newAttributedText = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@: %@\n", name, message] attributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]}];
+  [newAttributedText addAttribute:NSForegroundColorAttributeName value:UIColorFromRGB(0x28ECFD) range:NSMakeRange(0, name.length)];
+  [attributedText appendAttributedString:newAttributedText];
+  self.channelTextView.attributedText = attributedText;
+  [self.channelTextView scrollRangeToVisible:NSMakeRange(0, self.channelTextView.attributedText.length - 1)];
+}
+
+- (void)setCommandDelegate:(CDVLivePlayer *)delegate andMessageCallbackId:(NSString *)callbackId
+{
+  cdvLivePLayer = delegate;
+  messageCallbackId = callbackId;  NSLog(@"onClickSend called.");
+  if (self.inputTextField.text.length > 0) {
+    [cdvLivePLayer successWithCallbackId:messageCallbackId withMessage:self.inputTextField.text andKeep:YES];
+    self.inputTextField.text = @"";
+  }
+  [self.inputTextField resignFirstResponder];
 }
 
 - (void)loadView
@@ -128,17 +139,45 @@ BOOL isMute = NO;
   self.titleLabel.textColor = [UIColor whiteColor];
   [self.topControlView addSubview:self.titleLabel];
 
+  // channel text view
+  self.channelTextView = [[UITextView alloc] initWithFrame:CGRectMake(screenWidth - 140 - 7.5, 64 + 7.5, 140, screenHeight - 64 - 44 - 15)];
+  self.channelTextView.returnKeyType = UIReturnKeyDone;
+  self.channelTextView.backgroundColor = [UIColor clearColor];
+  self.channelTextView.font = [UIFont systemFontOfSize:15];
+  self.channelTextView.textColor = [UIColor whiteColor];
+  self.channelTextView.textContainer.lineBreakMode = NSLineBreakByWordWrapping;
+  self.channelTextView.selectable = NO;
+
   // bottom control view
   self.bottomControlView = [[UIView alloc] initWithFrame:CGRectMake(0, screenHeight - 44, screenWidth, 44)];
   self.bottomControlView.backgroundColor = [UIColor blackColor];
   self.bottomControlView.alpha = 0.7;
 
-  // mute button
-  self.muteButton = [UIButton buttonWithType:UIButtonTypeCustom];
-  [self.muteButton setImage:[UIImage imageNamed:@"CDVLivePlayer.bundle/volume"] forState:UIControlStateNormal];
-  self.muteButton.frame = CGRectMake(margin, 0, 44, 44);
-  [self.muteButton addTarget:self action:@selector(onClickMute:) forControlEvents:UIControlEventTouchUpInside];
-  [self.bottomControlView addSubview:self.muteButton];
+  // input textfield
+  self.inputTextField = [[UITextField alloc] initWithFrame:CGRectMake(50, 10, 350, 24)];
+  self.inputTextField.backgroundColor = [UIColor whiteColor];
+  self.inputTextField.borderStyle = UITextBorderStyleRoundedRect;
+  self.inputTextField.layer.cornerRadius = 4.0f;
+  self.inputTextField.font = [UIFont systemFontOfSize:13];
+  self.inputTextField.placeholder = @"输入你想说的话和你想问的";
+  self.inputTextField.autocorrectionType = UITextAutocorrectionTypeNo;
+  self.inputTextField.keyboardType = UIKeyboardTypeDefault;
+  self.inputTextField.returnKeyType = UIReturnKeyDone;
+  self.inputTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
+  self.inputTextField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+  [self.bottomControlView addSubview:self.inputTextField];
+
+  // send button
+  self.sendButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+  self.sendButton.layer.cornerRadius = 4.0f;
+  self.sendButton.frame = CGRectMake(0, 0, 65, 24);
+  self.sendButton.backgroundColor = UIColorFromRGB(0xDF00A5);
+  self.sendButton.titleLabel.font = [UIFont systemFontOfSize:13];
+  self.sendButton.titleLabel.textColor = [UIColor whiteColor];
+  [self.sendButton setTitle:@"发送" forState:UIControlStateNormal];
+  [self.sendButton addTarget:self action:@selector(onClickSend:) forControlEvents:UIControlEventTouchUpInside];
+  self.inputTextField.rightView = self.sendButton;
+  self.inputTextField.rightViewMode = UITextFieldViewModeAlways;
 
   // snapshot button
   self.snapshotButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -147,12 +186,16 @@ BOOL isMute = NO;
   [self.snapshotButton addTarget:self action:@selector(onClickSnapshot:) forControlEvents:UIControlEventTouchUpInside];
   [self.bottomControlView addSubview:self.snapshotButton];
 
-  // volume slider
-  self.volumeSlider = [[AppleIsBitchVolumeView alloc] initWithFrame:CGRectMake(44 + margin, 0, 300, 44)];
-  [self.bottomControlView addSubview:self.volumeSlider];
+  // list button
+  self.listButton = [UIButton buttonWithType:UIButtonTypeCustom];
+  [self.listButton setImage:[UIImage imageNamed:@"CDVLivePlayer.bundle/list"] forState:UIControlStateNormal];
+  self.listButton.frame = CGRectMake(screenWidth - 44 * 2 - margin * 2, 0, 44, 44);
+  [self.listButton addTarget:self action:@selector(onClickList:) forControlEvents:UIControlEventTouchUpInside];
+  [self.bottomControlView addSubview:self.listButton];
 
   [self.controlOverlay addSubview:self.topControlView];
   [self.controlOverlay addSubview:self.bottomControlView];
+  [self.controlOverlay addSubview:self.channelTextView];
   [self.streamingOverlay addSubview:self.controlOverlay];
 
   self.player = [[NELivePlayerController alloc] initWithContentURL:self.url];
@@ -211,6 +254,9 @@ BOOL isMute = NO;
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playBackFinished:) name:NELivePlayerPlaybackFinishedNotification object:_player];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(firstVideoDisplayed:) name:NELivePlayerFirstVideoDisplayedNotification object:_player];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(releaseSuccess:) name:NELivePlayerReleaseSueecssNotification object:_player];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillChangeFrameNotification object:nil];
 }
 
 - (BOOL)prefersStatusBarHidden
@@ -229,6 +275,19 @@ BOOL isMute = NO;
 }
 
 #pragma mark - IBActions
+
+
+-(void)keyboardWillShow:(NSNotification *)notification
+{
+  NSDictionary *keyboardInfo = [notification userInfo];
+  CGSize keyboardSize = [[keyboardInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
+  self.bottomControlView.frame = CGRectMake(0, screenHeight - 44 - keyboardSize.height, screenWidth, 44);
+}
+
+-(void)keyboardWillHide:(NSNotification *)notification
+{
+  self.bottomControlView.frame = CGRectMake(0, screenHeight - 44, screenWidth, 44);
+}
 
 - (void)onClickStreamingOverlay:(id)sender
 {
@@ -255,18 +314,21 @@ BOOL isMute = NO;
   }
 }
 
-- (void)onClickMute:(id)sender
+- (void)onClickSend:(id)sender
 {
-  NSLog(@"onClickMute called.");
-  isMute = !isMute;
-  if (isMute) {
-    [self.muteButton setImage:[UIImage imageNamed:@"CDVLivePlayer.bundle/mute"] forState:UIControlStateNormal];
-    [self.player setMute:YES];
+  NSLog(@"onClickSend called.");
+  if (self.inputTextField.text.length > 0) {
+    [cdvLivePLayer successWithCallbackId:messageCallbackId withMessage:self.inputTextField.text andKeep:YES];
+    self.inputTextField.text = @"";
   }
-  else {
-    [self.muteButton setImage:[UIImage imageNamed:@"CDVLivePlayer.bundle/volume"] forState:UIControlStateNormal];
-    [self.player setMute:NO];
-  }
+  [self.inputTextField resignFirstResponder];
+}
+
+- (void)onClickList:(id)sender
+{
+  NSLog(@"onClickList called.");
+  isChannelHide = !isChannelHide;
+  self.channelTextView.hidden = isChannelHide;
 }
 
 - (void)onClickSnapshot:(id)sender

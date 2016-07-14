@@ -10,5 +10,8 @@
 @interface CDVLivePlayer:CDVPlugin
 
 - (void)play:(CDVInvokedUrlCommand *)command;
+- (void)channel:(CDVInvokedUrlCommand *)command;
+- (void)message:(CDVInvokedUrlCommand *)command;
+- (void)successWithCallbackId:(NSString *)callbackId withMessage:(NSString *)message andKeep:(BOOL)keep;
 
 @end
