@@ -62,18 +62,6 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/muteBtn"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="false"
-            android:background="@null"
-            android:src="@drawable/volume"
-            android:contentDescription="mute button" />
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
             android:id="@+id/snapshotBtn"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
@@ -82,12 +70,49 @@
             android:src="@drawable/snapshot"
             android:contentDescription="snapshot button" />
 
-        <SeekBar
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/volumeSlider"
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/listBtn"
+            android:background="@null"
+            android:src="@drawable/list"
+            android:contentDescription="list button"
+            android:layout_alignParentTop="false"
+            android:layout_toLeftOf="@+id/snapshotBtn"
+            android:layout_toStartOf="@+id/snapshotBtn"
+            android:layout_alignWithParentIfMissing="false"/>
+
+        <EditText
+            android:layout_width="350dp"
+            android:layout_height="24dp"
+            android:id="@+id/inputText"
+            android:layout_marginLeft="50dp"
+            android:layout_marginStart="51dp"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/muteBtn" />
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:inputType="text"
+            android:background="@drawable/rounded"
+            android:textColor="#727376"
+            android:textSize="13dp"
+            android:paddingLeft="7.5dp"
+            android:hint="输入你想说的话和你想问的"
+            android:imeOptions="flagNoExtractUi"/>
+
+        <Button
+            android:layout_width="65dp"
+            android:layout_height="24dp"
+            android:text="发送"
+            android:id="@+id/sendBtn"
+            android:layout_centerVertical="true"
+            android:layout_alignRight="@+id/inputText"
+            android:layout_alignEnd="@+id/inputText"
+            android:background="@drawable/rounded_button"
+            android:textColor="#ffffff"
+            android:enabled="true"
+            android:focusable="false"
+            android:textSize="13dp"
+            android:clickable="false"/>
 
     </RelativeLayout>
 
@@ -116,5 +141,13 @@
             android:layout_marginTop="20dp"
             android:textColor="#727376" />
     </LinearLayout>
+
+    <TextView
+        android:layout_width="140dp"
+        android:layout_height="240dp"
+        android:id="@+id/channelText"
+        android:layout_gravity="right|center_vertical"
+        android:textSize="15dp"
+        android:textColor="#ffffff"/>
 
 </FrameLayout>

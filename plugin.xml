@@ -96,7 +96,7 @@
       <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     </config-file>
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
-      <activity android:name="xwang.cordova.vcloud.liveplayer.LivePlayerActivity" android:label="@string/app_name" android:screenOrientation="landscape" android:configChanges="orientation|keyboardHidden|screenSize" />
+      <activity android:name="xwang.cordova.vcloud.liveplayer.LivePlayerActivity" android:label="@string/app_name" android:screenOrientation="landscape" android:configChanges="orientation|keyboardHidden|screenSize" android:windowSoftInputMode="adjustResize" />
     </config-file>
 
     <source-file src="src/android/LivePlayer.java" target-dir="src/xwang/cordova/vcloud/liveplayer" />
@@ -116,30 +116,37 @@
     <source-file src="src/android/libs/x86/libnelpengine.so" target-dir="libs/x86" />
     <source-file src="src/android/libs/x86/libnelprender.so" target-dir="libs/x86" />
     <source-file src="src/android/res/layout/activity_liveplayer.xml" target-dir="res/layout" />
+    <source-file src="src/android/res/drawable/rounded.xml" target-dir="res/drawable" />
+    <source-file src="src/android/res/drawable/rounded_button.xml" target-dir="res/drawable" />
     <source-file src="src/android/res/drawable-hdpi/fullscreen_off.png" target-dir="res/drawable-hdpi" />
     <source-file src="src/android/res/drawable-hdpi/fullscreen_on.png" target-dir="res/drawable-hdpi" />
     <source-file src="src/android/res/drawable-hdpi/mute.png" target-dir="res/drawable-hdpi" />
     <source-file src="src/android/res/drawable-hdpi/snapshot.png" target-dir="res/drawable-hdpi" />
     <source-file src="src/android/res/drawable-hdpi/volume.png" target-dir="res/drawable-hdpi" />
+    <source-file src="src/android/res/drawable-hdpi/list.png" target-dir="res/drawable-hdpi" />
     <source-file src="src/android/res/drawable-mdpi/fullscreen_off.png" target-dir="res/drawable-mdpi" />
     <source-file src="src/android/res/drawable-mdpi/fullscreen_on.png" target-dir="res/drawable-mdpi" />
     <source-file src="src/android/res/drawable-mdpi/mute.png" target-dir="res/drawable-mdpi" />
     <source-file src="src/android/res/drawable-mdpi/snapshot.png" target-dir="res/drawable-mdpi" />
     <source-file src="src/android/res/drawable-mdpi/volume.png" target-dir="res/drawable-mdpi" />
+    <source-file src="src/android/res/drawable-mdpi/list.png" target-dir="res/drawable-mdpi" />
     <source-file src="src/android/res/drawable-xhdpi/fullscreen_off.png" target-dir="res/drawable-xhdpi" />
     <source-file src="src/android/res/drawable-xhdpi/fullscreen_on.png" target-dir="res/drawable-xhdpi" />
     <source-file src="src/android/res/drawable-xhdpi/mute.png" target-dir="res/drawable-xhdpi" />
     <source-file src="src/android/res/drawable-xhdpi/snapshot.png" target-dir="res/drawable-xhdpi" />
     <source-file src="src/android/res/drawable-xhdpi/volume.png" target-dir="res/drawable-xhdpi" />
+    <source-file src="src/android/res/drawable-xhdpi/list.png" target-dir="res/drawable-xhdpi" />
     <source-file src="src/android/res/drawable-xxhdpi/fullscreen_off.png" target-dir="res/drawable-xxhdpi" />
     <source-file src="src/android/res/drawable-xxhdpi/fullscreen_on.png" target-dir="res/drawable-xxhdpi" />
     <source-file src="src/android/res/drawable-xxhdpi/mute.png" target-dir="res/drawable-xxhdpi" />
     <source-file src="src/android/res/drawable-xxhdpi/snapshot.png" target-dir="res/drawable-xxhdpi" />
     <source-file src="src/android/res/drawable-xxhdpi/volume.png" target-dir="res/drawable-xxhdpi" />
+    <source-file src="src/android/res/drawable-xxhdpi/list.png" target-dir="res/drawable-xxhdpi" />
     <source-file src="src/android/res/drawable-xxxhdpi/fullscreen_off.png" target-dir="res/drawable-xxxhdpi" />
     <source-file src="src/android/res/drawable-xxxhdpi/fullscreen_on.png" target-dir="res/drawable-xxxhdpi" />
     <source-file src="src/android/res/drawable-xxxhdpi/mute.png" target-dir="res/drawable-xxxhdpi" />
     <source-file src="src/android/res/drawable-xxxhdpi/snapshot.png" target-dir="res/drawable-xxxhdpi" />
     <source-file src="src/android/res/drawable-xxxhdpi/volume.png" target-dir="res/drawable-xxxhdpi" />
+    <source-file src="src/android/res/drawable-xxxhdpi/list.png" target-dir="res/drawable-xxxhdpi" />
   </platform>
 </plugin>

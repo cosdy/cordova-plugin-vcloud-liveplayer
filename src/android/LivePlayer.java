@@ -15,6 +15,12 @@ public class LivePlayer extends CordovaPlugin {
     if (action.equals("play")) {
       return play(args, callbackContext);
     }
+    else if (action.equals("channel")) {
+      return channel(args, callbackContext);
+    }
+    else if (action.equals("message")) {
+      return message(args, callbackContext);
+    }
     return false;
   }
 
@@ -33,13 +39,34 @@ public class LivePlayer extends CordovaPlugin {
     .putExtra("title", title);
     this.cordova.getActivity().startActivity(intent);
 
-    sendNoResultPluginResult(callbackContext);
+    sendNoResultPluginResult(callbackContext, false);
     return true;
   }
 
-  private void sendNoResultPluginResult(CallbackContext callbackContext) {
+  protected boolean channel(CordovaArgs args, final CallbackContext callbackContext) {
+    final String name, message;
+    try {
+      name = args.getString(0);
+      message = args.getString(1);
+    } catch (JSONException e) {
+      callbackContext.error(ERROR_INVALID_PARAMETERS);
+      return true;
+    }
+    LivePlayerActivity.addChannelMessage(name, message);
+
     PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-    result.setKeepCallback(true);
+    callbackContext.sendPluginResult(result);
+    return true;
+  }
+
+  protected boolean message(CordovaArgs args, final CallbackContext callbackContext) {
+    LivePlayerActivity.setMessageCallbackContext(callbackContext);
+    return true;
+  }
+
+  private void sendNoResultPluginResult(CallbackContext callbackContext, boolean keep) {
+    PluginResult result = new PluginResult(PluginResult.Status.OK);
+    result.setKeepCallback(keep);
     callbackContext.sendPluginResult(result);
   }
 }

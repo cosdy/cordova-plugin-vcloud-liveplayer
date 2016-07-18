@@ -4,22 +4,31 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.media.AudioManager;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.method.ScrollingMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.netease.neliveplayer.NELivePlayer;
 import com.xinfu.uuke.local.R;
+
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.PluginResult;
 
 public class LivePlayerActivity extends Activity {
   private String mUrl;
@@ -31,16 +40,18 @@ public class LivePlayerActivity extends Activity {
   private RelativeLayout mBottomView;
   private Button mBackBtn;
   private TextView mTitleLabel;
-  private ImageButton mMuteBtn;
   private ImageButton mSnapshotBtn;
-  private SeekBar mVolumeSlider;
-  private AudioManager mAudioManager;
+  private ImageButton mListBtn;
+  private Button mSendBtn;
+  private EditText mInputText;
   private LinearLayout mBuffering;
-
-  private boolean isHide = false;
-  private boolean isMute = false;
+  private static TextView mChannelText;
 
   private static Context mContext;
+  private static CallbackContext pluginCallbackContext;
+
+  private boolean isChannelHide = false;
+  public static Handler UIHandler = new Handler(Looper.getMainLooper());
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -76,19 +87,41 @@ public class LivePlayerActivity extends Activity {
 
     mBottomView = (RelativeLayout) findViewById(R.id.bottomView);
 
-    mMuteBtn = (ImageButton) findViewById(R.id.muteBtn);
-    mMuteBtn.setOnClickListener(mOnClickEvent);
-
-    mVolumeSlider = (SeekBar) findViewById(R.id.volumeSlider);
-    mVolumeSlider.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
-    mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-    mVolumeSlider.setMax(mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
-    mVolumeSlider.setProgress(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
-
     mSnapshotBtn = (ImageButton) findViewById(R.id.snapshotBtn);
     mSnapshotBtn.setOnClickListener(mOnClickEvent);
 
+    mListBtn = (ImageButton) findViewById(R.id.listBtn);
+    mListBtn.setOnClickListener(mOnClickEvent);
+
+    mSendBtn = (Button) findViewById(R.id.sendBtn);
+    mSendBtn.setOnClickListener(mOnClickEvent);
+
+    mChannelText = (TextView) findViewById(R.id.channelText);
+    mChannelText.setMovementMethod(new ScrollingMovementMethod());
+    mInputText = (EditText) findViewById(R.id.inputText);
+
     mBuffering = (LinearLayout) findViewById(R.id.buffering);
+  }
+
+  public static void addChannelMessage(final String name, final String message) {
+    UIHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        Spannable spannable = new SpannableString(name + ": " + message + "\n");
+        spannable.setSpan(new ForegroundColorSpan(Color.rgb(28,236,253)), 0, name.length(),  Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        mChannelText.append(spannable);
+
+        final int scrollAmount = mChannelText.getLayout().getLineTop(mChannelText.getLineCount()) - mChannelText.getHeight();
+        if (scrollAmount > 0)
+          mChannelText.scrollTo(0, scrollAmount);
+        else
+          mChannelText.scrollTo(0, 0);
+      }
+    });
+  }
+
+  public static void setMessageCallbackContext(CallbackContext context) {
+    pluginCallbackContext = context;
   }
 
   View.OnClickListener mOnClickEvent = new View.OnClickListener() {
@@ -98,36 +131,32 @@ public class LivePlayerActivity extends Activity {
         onDestroy();
         finish();
       }
-      else if (view.getId() == R.id.muteBtn) {
-        isMute = !isMute;
-        if (isMute) {
-          mMuteBtn.setImageResource(R.drawable.mute);
-          mStreamingView.setMute(true);
-        }
-        else {
-          mMuteBtn.setImageResource(R.drawable.volume);
-          mStreamingView.setMute(false);
-        }
-      }
       else if (view.getId() == R.id.snapshotBtn) {
         mStreamingView.getSnapshot();
+      }
+      else if (view.getId() == R.id.listBtn) {
+        isChannelHide = !isChannelHide;
+        if (isChannelHide) {
+          mChannelText.setVisibility(View.INVISIBLE);
+        }
+        else {
+          mChannelText.setVisibility(View.VISIBLE);
+        }
+      }
+      else if (view.getId() == R.id.sendBtn) {
+        PluginResult result = new PluginResult(PluginResult.Status.OK, mInputText.getText().toString());
+        result.setKeepCallback(true);
+        if (pluginCallbackContext != null) {
+          pluginCallbackContext.sendPluginResult(result);
+        }
+        mInputText.setText("");
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mInputText.getWindowToken(), 0);
       }
       else if (view.getId() == R.id.controlOverlay) {
         hide();
       }
     }
-  };
-
-  SeekBar.OnSeekBarChangeListener mOnSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-      mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, i, 0);
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {}
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {}
   };
 
   NELivePlayer.OnCompletionListener mOnCompletionListener = new NELivePlayer.OnCompletionListener() {
@@ -196,31 +225,22 @@ public class LivePlayerActivity extends Activity {
   };
 
   public void show() {
-    isHide = false;
     mControlOverlay.setVisibility(View.VISIBLE);
     mTopView.setVisibility(View.VISIBLE);
     mBottomView.setVisibility(View.VISIBLE);
+    mChannelText.setVisibility(View.VISIBLE);
   }
 
   public void hide() {
-    isHide = true;
     mControlOverlay.setVisibility(View.INVISIBLE);
     mTopView.setVisibility(View.INVISIBLE);
     mBottomView.setVisibility(View.INVISIBLE);
+    mChannelText.setVisibility(View.INVISIBLE);
   }
-
 
   @Override
   public void onStart() {
     super.onStart();
-  }
-
-  @Override
-  public boolean onKeyDown(int keyCode, KeyEvent event) {
-    if (keyCode == event.KEYCODE_VOLUME_DOWN || keyCode == event.KEYCODE_VOLUME_UP) {
-      mVolumeSlider.setProgress(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
-    }
-    return super.onKeyDown(keyCode, event);
   }
 
   @Override
