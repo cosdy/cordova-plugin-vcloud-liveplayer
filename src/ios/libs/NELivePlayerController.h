@@ -17,9 +17,9 @@
  *	@brief	log级别
  */
 typedef enum NELPLogLevel
- {
+{
     NELP_LOG_DEFAULT = 1, //!< log输出模式：输出详细
-
+    
     NELP_LOG_VERBOSE = 2, //!< log输出模式：输出详细
     NELP_LOG_DEBUG   = 3, //!< log输出模式：输出调试信息
     NELP_LOG_INFO    = 4, //!< log输出模式：输出标准信息
@@ -52,4 +52,3 @@ typedef enum NELPLogLevel
 + (void)setLogLevel:(NELPLogLevel)logLevel;
 
 @end
-

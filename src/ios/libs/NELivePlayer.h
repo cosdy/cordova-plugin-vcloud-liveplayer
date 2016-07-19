@@ -11,7 +11,6 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import <MediaPlayer/MediaPlayer.h>
 
 /*! \file */
 
@@ -32,6 +31,7 @@ typedef enum NELPMovieScalingMode {
     NELPMovieScalingModeAspectFill, //!< 等比例缩放，某一边可能会被裁减
     NELPMovieScalingModeFill        //!< 全屏显示，画面宽高比可能与视频原始宽高比不一致
 }NELPMovieScalingMode;
+
 /**
  * @brief 播放状态
  */
@@ -59,7 +59,7 @@ typedef enum NELPMovieFinishReason {
     NELPMovieFinishReasonPlaybackError, //!< 播放发生错误导致结束
     NELPMovieFinishReasonUserExited,    //!< 人为退出
 }NELPMovieFinishReason;
-
+                
 /**
  * @brief 视频信息
  */
@@ -75,11 +75,17 @@ typedef struct NELPVideoInfo {
  * @brief 音频信息
  */
 typedef struct NELPAudioInfo {
-    const char *codec_type;        //!< 音频编码器类型 如: aac
+    const char *codec_type;  //!< 音频编码器类型 如: aac
     NSInteger sample_rate;   //!< 音频的采样率
     NSInteger bitrate;       //!< 码率 (单位: kb/s)
     NSInteger numOfChannels; //!< 音频的通道数
 }NELPAudioInfo;
+
+typedef struct NELPAudioQueue {
+    float first_pts;
+    float last_pts;
+    int nb_packets;
+}NELPAudioQueue;
 
 @protocol NELivePlayer;
 
@@ -88,7 +94,6 @@ typedef struct NELPAudioInfo {
 
 @protocol NELivePlayer <NSObject>
 
-
 /**
  * @brief  设置缓冲策略，在播放器初始化后，prepareToPlay之前调用
  *
@@ -96,7 +101,7 @@ typedef struct NELPAudioInfo {
  *
  * @return 无
  */
-- (void)SetBufferStrategy:(NELPBufferStrategy)bufferStrategy;
+- (void)setBufferStrategy:(NELPBufferStrategy)bufferStrategy;
 
 /**
  *	@brief	设置数据源，初始化视频文件为播放做准备，在播放前调用
@@ -144,7 +149,7 @@ typedef struct NELPAudioInfo {
  *
  *  @discussion
  *  在播放器退出时，需要调用该方法用于释放资源。\\\n
- *  若在播放过程中需要切换URL，首先需要调用该方法停止播放，然后调用removeFromSuperview 将view移除，再初始化，prepareToPlay，最后调用play方法。
+ *  若在播放过程中需要切换URL，首先需要调用该方法停止播放，然后调用removeFromSuperview 将view移除，并将player置为nil，再初始化，prepareToPlay，最后调用play方法。
  *
  *	@return	无
  */
@@ -179,9 +184,9 @@ typedef struct NELPAudioInfo {
 - (void)setScalingMode: (NELPMovieScalingMode) aScalingMode;
 
 /**
- *	@brief	播放过程中实时开启和关闭音频输出
+ *	@brief	静音功能
  *
- *	@param 	isMute 	YES：开启音频输出 NO：关闭音频输出
+ *	@param 	isMute 	YES：开启静音 NO：关闭静音
  *
  *	@return	无
  */
@@ -234,7 +239,9 @@ typedef struct NELPAudioInfo {
  */
 - (NSString *)getSDKVersion;
 
+//- (void)setSpeed:(double)speed;
 
+- (void)getAudioQueue:(NELPAudioQueue *)audioQueue;
 
 
 /**
@@ -308,7 +315,7 @@ typedef struct NELPAudioInfo {
 /**
  *	@brief	获取当前播放状态 (只读)
  *
- *  @discussion 共有以下5种状态，详见 NELPMoviePlaybackState。
+ *  @discussion 共有以下4种状态，详见 NELPMoviePlaybackState。
  *
  *  NELPMoviePlaybackStateStopped, // 停止状态 \\\n
  *  NELPMoviePlaybackStatePlaying, // 播放状态 \\\n
@@ -329,7 +336,7 @@ typedef struct NELPAudioInfo {
 /**
  *	@brief	获取当前加载状态 (只读)
  *
- *  @discussion 共有以下4种加载状态，详见 NELPMovieLoadState
+ *  @discussion 共有以下3种加载状态，详见 NELPMovieLoadState
  *
  *  NELPMovieLoadStatePlayable       = 1 << 0, // 在该状态下，播放器初始化完成，可以播放，若shouldAutoplay 设置成YES，播放器初始化完成后会自动播放 \\\n
  *  NELPMovieLoadStatePlaythroughOK  = 1 << 1, // 在该状态下，在网络不好的情况下缓冲完成，可以播放 \\\n
@@ -365,8 +372,11 @@ NELP_EXTERN NSString *const NELivePlayerPlaybackStateChangedNotification;
 NELP_EXTERN NSString *const NELivePlayerHardwareDecoderOpenNotification;
 ///播放器第一帧视频显示时的消息通知
 NELP_EXTERN NSString *const NELivePlayerFirstVideoDisplayedNotification;
+///播放器第一帧音频播放时的消息通知
+NELP_EXTERN NSString *const NELivePlayerFirstAudioDisplayedNotification;
 ///播放器资源释放完成时的消息通知
 NELP_EXTERN NSString *const NELivePlayerReleaseSueecssNotification;
+///播放器播放结束原因的key
+NELP_EXTERN NSString *const NELivePlayerPlaybackDidFinishReasonUserInfoKey;
 
 @end
-

@@ -48,6 +48,7 @@
     <source-file src="src/ios/libs/libssl.a" framework="true" />
     <source-file src="src/ios/libs/libswresample.a" framework="true" />
     <source-file src="src/ios/libs/libswscale.a" framework="true" />
+    <source-file src="src/ios/libs/libspeex.a" framework="true" />
 
     <!-- other required frameworks -->
     <framework src="libbz2.tbd" />
