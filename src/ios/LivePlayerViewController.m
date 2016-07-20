@@ -223,7 +223,7 @@ CDVLivePlayer *cdvLivePLayer;
 
 - (void)viewWillAppear:(BOOL)animated {
   [super viewWillAppear:animated];
-  [self.player SetBufferStrategy:NELPLowDelay];
+  [self.player setBufferStrategy:NELPLowDelay];
   [self.player setScalingMode:NELPMovieScalingModeAspectFit];
   [self.player setShouldAutoplay:YES];
   [self.player setPauseInBackground:NO];
@@ -395,7 +395,7 @@ CDVLivePlayer *cdvLivePLayer;
       [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
     }
   }];
-  switch ([[[notification userInfo] valueForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey] intValue]) {
+  switch ([[[notification userInfo] valueForKey:NELivePlayerPlaybackDidFinishReasonUserInfoKey] intValue]) {
     case NELPMovieFinishReasonPlaybackEnded:
       alertController = [UIAlertController alertControllerWithTitle:@"直播已结束" message:nil preferredStyle:UIAlertControllerStyleAlert];
       break;
