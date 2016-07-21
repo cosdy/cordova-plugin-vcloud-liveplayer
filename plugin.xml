@@ -73,6 +73,7 @@
 
   <!-- android -->
   <platform name="android">
+    <hook type="after_plugin_install" src="scripts/androidInstall.js" />
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="LivePlayer">
         <param name="android-package" value="xwang.cordova.vcloud.liveplayer.LivePlayer"/>

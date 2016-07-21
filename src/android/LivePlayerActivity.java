@@ -25,7 +25,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.netease.neliveplayer.NELivePlayer;
-import com.xinfu.uuke.local.R;
+import __PACKAGE_NAME__.R;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.PluginResult;
