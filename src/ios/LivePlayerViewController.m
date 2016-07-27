@@ -334,32 +334,33 @@ CDVLivePlayer *cdvLivePLayer;
 - (void)onClickSnapshot:(id)sender
 {
   NSLog(@"onClickSnapshot called.");
-  UIImage *snapImage = [self.player getSnapshot];
-  UIImageWriteToSavedPhotosAlbum(snapImage, nil, nil, nil);
 
-  PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
-  BOOL authorized = NO;
-  switch (status) {
-    case PHAuthorizationStatusDenied:
-    case PHAuthorizationStatusRestricted:
-    case PHAuthorizationStatusNotDetermined:
-      authorized = NO;
-      break;
-    case PHAuthorizationStatusAuthorized:
-      authorized = YES;
-      break;
-  }
+  [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+    BOOL authorized = NO;
+    switch (status) {
+      case PHAuthorizationStatusDenied:
+      case PHAuthorizationStatusRestricted:
+      case PHAuthorizationStatusNotDetermined:
+        authorized = NO;
+        break;
+      case PHAuthorizationStatusAuthorized:
+        authorized = YES;
+        break;
+    }
 
-  UIAlertController *alertController = NULL;
-  if (authorized) {
-    alertController = [UIAlertController alertControllerWithTitle:@"截图已保存到相册" message:nil preferredStyle:UIAlertControllerStyleAlert];
-  }
-  else {
-    alertController = [UIAlertController alertControllerWithTitle:@"无法访问相册" message:@"请在设置中允许悠课访问你的相册" preferredStyle:UIAlertControllerStyleAlert];
-  }
-  UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){}];
-  [alertController addAction:action];
-  [self presentViewController:alertController animated:YES completion:nil];
+    UIAlertController *alertController = NULL;
+    if (authorized) {
+      UIImage *snapImage = [self.player getSnapshot];
+      UIImageWriteToSavedPhotosAlbum(snapImage, nil, nil, nil);
+      alertController = [UIAlertController alertControllerWithTitle:@"截图已保存到相册" message:nil preferredStyle:UIAlertControllerStyleAlert];
+    }
+    else {
+      alertController = [UIAlertController alertControllerWithTitle:@"无法访问相册" message:@"请在设置中允许悠课访问你的相册" preferredStyle:UIAlertControllerStyleAlert];
+    }
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){}];
+    [alertController addAction:action];
+    [self presentViewController:alertController animated:YES completion:nil];
+  }];
 }
 
 #pragma mark - Notification Handlers
