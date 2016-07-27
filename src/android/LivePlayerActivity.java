@@ -229,6 +229,8 @@ public class LivePlayerActivity extends Activity {
     mTopView.setVisibility(View.VISIBLE);
     mBottomView.setVisibility(View.VISIBLE);
     mChannelText.setVisibility(View.VISIBLE);
+    mInputText.setVisibility(View.VISIBLE);
+    mSendBtn.setVisibility(View.VISIBLE);
   }
 
   public void hide() {
@@ -236,6 +238,8 @@ public class LivePlayerActivity extends Activity {
     mTopView.setVisibility(View.INVISIBLE);
     mBottomView.setVisibility(View.INVISIBLE);
     mChannelText.setVisibility(View.INVISIBLE);
+    mInputText.setVisibility(View.INVISIBLE);
+    mSendBtn.setVisibility(View.INVISIBLE);
   }
 
   @Override
