@@ -144,12 +144,14 @@ public class LivePlayerActivity extends Activity {
         }
       }
       else if (view.getId() == R.id.sendBtn) {
-        PluginResult result = new PluginResult(PluginResult.Status.OK, mInputText.getText().toString());
-        result.setKeepCallback(true);
-        if (pluginCallbackContext != null) {
-          pluginCallbackContext.sendPluginResult(result);
+        if (!mInputText.getText().toString().isEmpty()) {
+          PluginResult result = new PluginResult(PluginResult.Status.OK, mInputText.getText().toString());
+          result.setKeepCallback(true);
+          if (pluginCallbackContext != null) {
+            pluginCallbackContext.sendPluginResult(result);
+          }
+          mInputText.setText("");
         }
-        mInputText.setText("");
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mInputText.getWindowToken(), 0);
       }

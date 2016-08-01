@@ -1,18 +1,24 @@
 package xwang.cordova.vcloud.liveplayer;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.netease.neliveplayer.NELivePlayer;
@@ -21,12 +27,16 @@ import com.netease.neliveplayer.NEMediaPlayer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Calendar;
 
 public class LivePlayerView extends SurfaceView {
   private static Context mContext;
   private int mVideoWidth;
   private int mVideoHeight;
+  private int mSurfaceWidth;
+  private int mSurfaceHeight;
   private SurfaceHolder mSurfaceHolder;
   private NELivePlayer mMediaPlayer;
   private boolean mIsPrepared;
@@ -65,6 +75,23 @@ public class LivePlayerView extends SurfaceView {
     requestFocus();
   }
 
+  @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+  public void setVideoScalingMode() {
+    ViewGroup.LayoutParams layPara = getLayoutParams();
+
+    if (mVideoWidth > 0 && mVideoHeight > 0) {
+      float aspectRatio = (float) (mVideoWidth) / mVideoHeight;
+      mSurfaceHeight = mVideoHeight;
+      mSurfaceWidth = mVideoWidth;
+
+      layPara.width = (int) (mSurfaceHeight * aspectRatio);
+      layPara.height = mSurfaceHeight;
+
+      setLayoutParams(layPara);
+      getHolder().setFixedSize(mSurfaceWidth, mSurfaceHeight);
+    }
+  }
+
   SurfaceHolder.Callback mSHCallback = new SurfaceHolder.Callback() {
 
     @Override
@@ -74,8 +101,10 @@ public class LivePlayerView extends SurfaceView {
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int w, int h) {
       mSurfaceHolder = surfaceHolder;
+      mSurfaceWidth = w;
+      mSurfaceHeight = h;
       if (mMediaPlayer != null) {
         mMediaPlayer.setDisplay(surfaceHolder);
       }
@@ -149,6 +178,9 @@ public class LivePlayerView extends SurfaceView {
     public void onPrepared(NELivePlayer mediaPlayer) {
       mVideoWidth = mediaPlayer.getVideoWidth();
       mVideoHeight = mediaPlayer.getVideoHeight();
+      if (mVideoWidth != 0 && mVideoHeight != 0) {
+        setVideoScalingMode();
+      }
       mIsPrepared = true;
       start();
     }
