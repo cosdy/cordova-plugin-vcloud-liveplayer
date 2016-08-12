@@ -306,6 +306,7 @@ CDVLivePlayer *cdvLivePLayer;
   self.controlOverlay.hidden = YES;
   isStatusBarHide = YES;
   [self setNeedsStatusBarAppearanceUpdate];
+  [self.inputTextField resignFirstResponder];
 }
 
 - (void)onClickBack:(id)sender
