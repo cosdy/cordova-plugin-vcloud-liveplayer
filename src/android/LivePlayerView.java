@@ -48,6 +48,8 @@ public class LivePlayerView extends SurfaceView {
   private NELivePlayer.OnInfoListener mOnInfoListener = null;
   private View.OnTouchListener mOnTouchListener = null;
 
+  private final static String TAG = "xwang.liveplayer";
+
   public LivePlayerView(Context context) {
     super(context);
     mContext = context;
@@ -78,19 +80,61 @@ public class LivePlayerView extends SurfaceView {
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   public void setVideoScalingMode() {
     ViewGroup.LayoutParams layPara = getLayoutParams();
+    int winWidth  = 0;
+    int winHeight = 0;
+    Rect rect = new Rect();
+    this.getWindowVisibleDisplayFrame(rect);
+    WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+    Display display = wm.getDefaultDisplay();
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      DisplayMetrics metrics = new DisplayMetrics();
+      display.getRealMetrics(metrics);
+      winWidth  = metrics.widthPixels;
+      winHeight = metrics.heightPixels - rect.top;
+    }
+    else {
+      try {
+        Method mRawWidth  = Display.class.getMethod("getRawWidth");
+        Method mRawHeight = Display.class.getMethod("getRawHeight");
+        winWidth  = (Integer) mRawWidth.invoke(display);
+        winHeight = (Integer) mRawHeight.invoke(display) - rect.top;
+      } catch (NoSuchMethodException e) {
+        DisplayMetrics dm = mContext.getResources().getDisplayMetrics();
+        winWidth  = dm.widthPixels;
+        winHeight = dm.heightPixels - rect.top;
+        e.printStackTrace();
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      } catch (IllegalArgumentException e) {
+        e.printStackTrace();
+      } catch (InvocationTargetException e) {
+        e.printStackTrace();
+      }
+    }
 
+    float winRatio = (float) winWidth / winHeight;
     if (mVideoWidth > 0 && mVideoHeight > 0) {
       float aspectRatio = (float) (mVideoWidth) / mVideoHeight;
       mSurfaceHeight = mVideoHeight;
       mSurfaceWidth = mVideoWidth;
 
-      layPara.width = (int) (mSurfaceHeight * aspectRatio);
-      layPara.height = mSurfaceHeight;
-
+      if (winRatio < aspectRatio) {
+        layPara.width  = winWidth;
+        layPara.height = (int)(winWidth / aspectRatio);
+      }
+      else {
+        layPara.width  = (int)(aspectRatio * winHeight);
+        layPara.height = winHeight;
+      }
       setLayoutParams(layPara);
       getHolder().setFixedSize(mSurfaceWidth, mSurfaceHeight);
+//      Log.d(TAG, "Video: width = " + mVideoWidth + ", height = " + mVideoHeight);
+//      Log.d(TAG, "Surface: width = " + mSurfaceWidth + ", height = " + mSurfaceHeight);
+//      Log.d(TAG, "Window:width = " + winWidth + ", height = " + winHeight);
+//      Log.d(TAG, "LayoutParams:width = " + layPara.width + ", height = " + layPara.height);
     }
   }
+
 
   SurfaceHolder.Callback mSHCallback = new SurfaceHolder.Callback() {
 
