@@ -154,7 +154,7 @@ CDVLivePlayer *cdvLivePLayer;
   self.bottomControlView.alpha = 0.7;
 
   // input textfield
-  self.inputTextField = [[UITextField alloc] initWithFrame:CGRectMake(50, screenHeight - 44 + 10, 350, 24)];
+  self.inputTextField = [[UITextField alloc] initWithFrame:CGRectMake(50, screenHeight - 44 + 10, screenWidth/2, 24)];
   self.inputTextField.backgroundColor = [UIColor whiteColor];
   self.inputTextField.borderStyle = UITextBorderStyleRoundedRect;
   self.inputTextField.layer.cornerRadius = 4.0f;
@@ -283,13 +283,13 @@ CDVLivePlayer *cdvLivePLayer;
   NSDictionary *keyboardInfo = [notification userInfo];
   CGSize keyboardSize = [[keyboardInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
   self.bottomControlView.frame = CGRectMake(0, screenHeight - 44 - keyboardSize.height, screenWidth, 44);
-  self.inputTextField.frame = CGRectMake(50, screenHeight - 44 + 10 - keyboardSize.height, 350, 24);
+  self.inputTextField.frame = CGRectMake(50, screenHeight - 44 + 10 - keyboardSize.height, screenWidth/2, 24);
 }
 
 -(void)keyboardWillHide:(NSNotification *)notification
 {
   self.bottomControlView.frame = CGRectMake(0, screenHeight - 44, screenWidth, 44);
-  self.inputTextField.frame = CGRectMake(50, screenHeight - 44 + 10, 350, 24);
+  self.inputTextField.frame = CGRectMake(50, screenHeight - 44 + 10, screenWidth/2, 24);
 }
 
 - (void)onClickStreamingOverlay:(id)sender
