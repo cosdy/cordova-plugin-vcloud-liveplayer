@@ -173,7 +173,7 @@ CDVLivePlayer *cdvLivePLayer;
   self.sendButton.frame = CGRectMake(0, 0, 65, 24);
   self.sendButton.backgroundColor = UIColorFromRGB(0xDF00A5);
   self.sendButton.titleLabel.font = [UIFont systemFontOfSize:13];
-  self.sendButton.titleLabel.textColor = [UIColor whiteColor];
+  [self.sendButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
   [self.sendButton setTitle:@"发送" forState:UIControlStateNormal];
   [self.sendButton addTarget:self action:@selector(onClickSend:) forControlEvents:UIControlEventTouchUpInside];
   self.inputTextField.rightView = self.sendButton;
