@@ -232,16 +232,12 @@ public class LivePlayerActivity extends Activity {
     mBottomView.setVisibility(View.VISIBLE);
     mInputText.setVisibility(View.VISIBLE);
     mSendBtn.setVisibility(View.VISIBLE);
-    if (!isChannelHide) {
-      mChannelText.setVisibility(View.VISIBLE);
-    }
   }
 
   public void hide() {
     mControlOverlay.setVisibility(View.INVISIBLE);
     mTopView.setVisibility(View.INVISIBLE);
     mBottomView.setVisibility(View.INVISIBLE);
-    mChannelText.setVisibility(View.INVISIBLE);
     mInputText.setVisibility(View.INVISIBLE);
     mSendBtn.setVisibility(View.INVISIBLE);
   }

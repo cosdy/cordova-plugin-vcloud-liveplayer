@@ -195,9 +195,9 @@ CDVLivePlayer *cdvLivePLayer;
 
   [self.controlOverlay addSubview:self.topControlView];
   [self.controlOverlay addSubview:self.bottomControlView];
-  [self.controlOverlay addSubview:self.channelTextView];
   [self.controlOverlay addSubview:self.inputTextField];
   [self.streamingOverlay addSubview:self.controlOverlay];
+  [self.streamingOverlay addSubview:self.channelTextView];
 
   self.player = [[NELivePlayerController alloc] initWithContentURL:self.url];
   self.player.view.frame = self.playerView.bounds;
